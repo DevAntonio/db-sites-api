@@ -2,12 +2,12 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const fs = require('fs');
 const path = require('path');
-const cors = require('cors'); // Adicione esta linha
+const cors = require('cors');
 
 const app = express();
 const port = 3000;
 
-app.use(cors()); // Adicione esta linha
+app.use(cors());
 app.use(bodyParser.json());
 
 const dbFilePath = path.join(__dirname, 'db_infos.json');
@@ -25,6 +25,18 @@ function saveDb(data) {
     fs.writeFileSync(dbFilePath, JSON.stringify(data, null, 2), 'utf8');
 }
 
+// Rota para servir o index.html
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+// Rota para listar produtos
+app.get('/api/products', (req, res) => {
+    const db = readDb();
+    res.json(db);
+});
+
+// Rota para adicionar produtos (não usada no index.html, mas mantida para compatibilidade)
 app.post('/api/products', (req, res) => {
     const { name, description, price } = req.body;
 
@@ -37,11 +49,6 @@ app.post('/api/products', (req, res) => {
     saveDb(db);
 
     res.status(201).json({ message: 'Produto adicionado com sucesso!' });
-});
-
-app.get('/api/products', (req, res) => {
-    const db = readDb();
-    res.json(db);
 });
 
 app.listen(port, () => {
